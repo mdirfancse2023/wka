@@ -191,3 +191,235 @@
 
 
                     currLinePos = 0
+
+
+                     'validate branch code
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 5)
+                    If strVar = strBranchNo Then
+                        strFlag = "Y"
+                    Else
+                        strFlag = "N"
+                    End If
+                    If strFlag = "N" Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("B", 2)
+                    End If
+                    currLinePos = currLinePos + 5
+
+                    'Validate WK Account No
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 17)
+                    strFlag = ValidateNumber(strVar)
+                    If strFlag = "N" Or strVar.Trim.Length <> 17 Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("A", 3)
+                    Else
+                        If validateCheckDigit(strVar) = "N" Or strVar = "00000000000000000" Then
+                            ProceedFlag = "N"
+                            errorString.SetValue("A", 3)
+                        End If
+                    End If
+                    currLinePos = currLinePos + 17
+
+                    'validate title code
+                    currLinePos = currLinePos + 2
+
+                    'validate customers first name
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 40)
+                    'Start of IR 20010091
+                    firstNameWka = currLinePos
+                    'End of IR 20010091
+                    'Start of IR 23120129
+                    'If ((strVar.Substring(0, 1) = " ") Or (strVar.Trim() = "")) Then
+                    '    ProceedFlag = "N"
+                    '    errorString.SetValue("F", 4)
+                    'End If
+                    If (ValidateAlphabetsQuotes(strVar) = "N") Or ((strVar.Substring(0, 1) = " ") Or (strVar.Trim() = "")) Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("F", 4)
+                    End If
+                    'End of IR 23120129
+                    currLinePos = currLinePos + 40
+
+                    'validate customers Middle name
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 40)
+
+                    currLinePos = currLinePos + 40
+                    'Start of IR 23120129
+
+                    If (ValidateAlphabetsQuotes(strVar) = "N") Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("Middle_Name", 99)
+                    End If
+                    'End of IR 23120129
+
+                    'validate customers Last name
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 40)
+                    'Start of IR 20010091
+                    lastNameWka = currLinePos
+                    
+                    If (ValidateAlphabetsDots(strVar) = "N") Or ((strVar.Substring(0, 1) = " ") Or (strVar.Trim() = "")) Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("LN", 5)
+                    End If
+                    'End of IR 23120129
+                    currLinePos = currLinePos + 40
+
+                    'validate gender code
+
+
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 1)
+                    If (Not (strVar = "M" Or strVar = "F" Or strVar = "T")) Then
+                        errorString.SetValue("G", 6) 'Signifies invalid   GenderCode
+                        ProceedFlag = "N"
+                    End If
+                    currLinePos = currLinePos + 1
+
+
+                    'validate Address line1
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 40)
+                    If ((strVar.Substring(0, 1) = " ") Or (strVar.Trim() = "")) Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("A1", 7)
+                    End If
+                    currLinePos = currLinePos + 40
+
+                    ''validate Address line2
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 40)
+
+                    currLinePos = currLinePos + 40
+
+                    'validate Address line3
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 40)
+                    If ((strVar.Substring(0, 1) = " ") Or (strVar.Trim() = "")) Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("A3", 8)
+                    End If
+                    currLinePos = currLinePos + 40
+
+                    ''validate Address line4
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 40)
+                    If ((strVar.Substring(0, 1) = " ") Or (strVar.Trim() = "")) Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("A4", 9)
+                    End If
+                    currLinePos = currLinePos + 40
+
+                    'validate postal code
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 8)
+                    strFlag = ValidateNumber(strVar)
+                    If strFlag = "N" Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("P", 10)
+                    End If
+                    currLinePos = currLinePos + 8
+
+                    'validate city code
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 3)
+                    If ((strVar.Substring(0, 1) = " ") Or (strVar.Trim() = "")) Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("C", 11)
+                    End If
+                    currLinePos = currLinePos + 3
+
+                    'validate state code
+                    strVar = strCurrentLineFromDataFile.Substring(currLinePos, 2)
+                    If ((strVar.Substring(0, 1) = " ") Or (strVar.Trim() = "")) Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("S", 12)
+                    End If
+                    currLinePos = currLinePos + 2
+
+                    'validate phone number
+                    Try
+                        strPhoneno = strCurrentLineFromDataFile.Substring(currLinePos, 12)
+
+                        If (Not ((strPhoneno.Length = 12) And (strPhoneno.Trim = ""))) Then
+                            If (strPhoneno.Substring(0, 1) = " ") Then
+                                ProceedFlag = "N" 'Mobile number should not start with space
+                                errorString.SetValue("ECA", 17)
+                            Else
+
+                                If (ValidateNumber(strPhoneno) = "N") Then
+                                    ProceedFlag = "N"
+                                    errorString.SetValue("PH", 13)
+
+                                    Dim s As String = strPhoneno.Trim
+                                ElseIf ((strPhoneno.TrimEnd.Length < 5)) Then
+                                    ProceedFlag = "N" 'Signifies mobile number should not be less than 5 digits
+                                    errorString.SetValue("ACA", 14)
+
+                                ElseIf (strPhoneno.Substring(0, 1) = 0) Then
+                                    ProceedFlag = "N" 'Signifies mobile number should not start with 0
+                                    errorString.SetValue("BCA", 15)
+
+                                ElseIf (1) Then
+                                    Dim flag As Boolean = False
+                                    i = 0
+
+                                    While (i < (strPhoneno.Trim.Length) - 1)
+
+                                        If (strPhoneno.Trim.Substring(i, 1) = strPhoneno.Trim.Substring(i + 1, 1)) Then
+
+                                            flag = False
+                                        Else
+                                            flag = True
+                                            Exit While
+                                        End If
+                                        i = i + 1
+                                    End While
+                                    If flag = True Then
+
+                                    Else
+                                        ProceedFlag = "N" 'Signifies all digits should not be same in a mobile number
+                                        errorString.SetValue("DCA", 16)
+                                    End If
+                                End If
+                            End If
+                        End If
+                    Catch e As Exception
+                        ProceedFlag = "N" 'Mobile number should not start with space
+                        errorString.SetValue("ECA", 17)
+                    End Try
+                    If strPhoneno.Trim = "" Then
+                        ProceedFlag = "N"
+                        errorString.SetValue("PH", 13)
+                    End If
+                    currLinePos = currLinePos + 12
+                    'vadlidate id Type
+
+
+                    strIDtypeCif = strCurrentLineFromDataFile.Substring(currLinePos, 2)
+
+                    trimmedCIFID = strIDtypeCif.Trim()
+                    If (trimmedCIFID <> "") Then
+                        'Start of IR 16040002
+                        'strFlag = ValidateNumber(strIDtypeCif)
+                        strFlag = ValidateAlphaNumeric(strIDtypeCif)
+                        'End of IR 16040002
+
+                        If strFlag = "N" Then
+                            ProceedFlag = "N"
+                            errorString.SetValue("I", 18)
+                        End If
+                        'Start of IR 16040002
+                    Else
+                        ProceedFlag = "N"
+                        errorString.SetValue("I", 18)
+                        'End of IR 16040002
+                    End If
+
+                    currLinePos = currLinePos + 2
+
+                    'validate id number
+                    strIDnoCif = strCurrentLineFromDataFile.Substring(currLinePos, 15)
+                    'Start of IR 23020024
+                    'If trimmedCIFID <> "10" And trimmedCIFID <> "02" Then
+                    If trimmedCIFID <> "44" And trimmedCIFID <> "10" And trimmedCIFID <> "02" Then
+                        'End of IR 23020024
+                        If ((strIDnoCif.Substring(0, 1) = " ") Or (strIDnoCif.Trim() = "")) Then
+                            ProceedFlag = "N"
+                            errorString.SetValue("EK", 21)
+                        End If
+
+                    End If
+
